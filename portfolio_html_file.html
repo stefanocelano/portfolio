@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Portfolio">
+<title>Portfolio · Sima Capital</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d0d0f;--bg2:#18181c;--bg3:#222228;--border:#2e2e36;
+  --text:#f0f0f0;--muted:#888;--green:#34c77b;--red:#ff5f5f;--gold:#f5c842;
+  --blue:#4da6ff;--font:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;padding-bottom:calc(env(safe-area-inset-bottom)+60px)}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.logo{font-size:13px;font-weight:600;letter-spacing:.5px;color:var(--gold)}
+.hdr-right{display:flex;align-items:center;gap:8px}
+#last-update{font-size:11px;color:var(--muted)}
+.hdr-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.hdr-btn.spinning svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:49px;z-index:9}
+.nav-tab{flex:1;padding:10px 0;font-size:12px;text-align:center;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.page{display:none}.page.active{display:block}
+.kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 12px 4px}
+.kpi-full{grid-column:1/-1}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.kpi-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.kpi-val{font-size:20px;font-weight:600}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--muted)}
+.sectors{padding:8px 0 12px}
+.sector{margin:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.sector-hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;user-select:none}
+.sector-name{font-size:13px;font-weight:600}
+.sector-pnl{font-size:12px;font-weight:600}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{font-size:10px;color:var(--muted);text-align:right;padding:4px 8px;background:var(--bg3);font-weight:400}
+th:first-child{text-align:left}
+td{font-size:12px;padding:7px 8px;border-top:1px solid var(--border);text-align:right;vertical-align:middle}
+td:first-child{text-align:left}
+.ticker{font-weight:600;font-size:12px;cursor:pointer;color:var(--blue)}
+.price-cell{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.chg{font-size:10px}
+.badge{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:600;margin-left:4px;background:var(--bg3);color:var(--muted)}
+.spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
+#status-bar{font-size:11px;color:var(--muted);text-align:center;padding:4px;display:none}
+.edit-wrap{padding:12px}
+.edit-search{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:9px 12px;margin-bottom:10px;outline:none}
+.edit-search:focus{border-color:var(--blue)}
+.asset-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.ac-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ac-ticker{font-weight:600;font-size:14px}
+.ac-sector{font-size:11px;color:var(--muted)}
+.ac-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.ac-field label{font-size:10px;color:var(--muted);display:block;margin-bottom:3px}
+.ac-field input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:14px;padding:7px 9px;outline:none}
+.ac-field input:focus{border-color:var(--blue)}
+.ac-actions{display:flex;gap:8px;margin-top:8px}
+.btn-save{flex:1;background:var(--gold);color:#000;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-del{background:var(--bg3);border:1px solid var(--border);color:var(--red);border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer}
+.btn-add{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--gold);border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px}
+.save-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99}
+.save-toast.show{opacity:1}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:flex;align-items:flex-end}
+.modal{background:var(--bg2);border-radius:16px 16px 0 0;width:100%;padding:20px 16px calc(20px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:14px}
+.modal label{font-size:11px;color:var(--muted);display:block;margin-bottom:3px;margin-top:10px}
+.modal input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;margin-bottom:2px}
+.modal input:focus{border-color:var(--blue)}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.btn-confirm{flex:1;background:var(--gold);color:#000;border:none;border-radius:8px;padding:10px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-cancel{background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:10px 16px;font-size:14px;cursor:pointer}
+footer{text-align:center;font-size:10px;color:var(--muted);padding:12px 16px 8px}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">SIMA CAPITAL</span>
+  <div class="hdr-right">
+    <span id="last-update">—</span>
+    <button class="hdr-btn" id="refresh-btn" onclick="loadAll()">
+      <svg id="refresh-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0018.49 15"/></svg>
+      Atualizar
+    </button>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="nav-tab active" onclick="showPage('dashboard')">Dashboard</div>
+  <div class="nav-tab" onclick="showPage('edit')">Editar carteira</div>
+</nav>
+
+<div id="status-bar"></div>
+
+<div class="page active" id="page-dashboard">
+  <div class="kpi-row">
+    <div class="kpi kpi-full"><div class="kpi-label">Valor total estimado</div><div class="kpi-val neu" id="kpi-total">—</div></div>
+    <div class="kpi"><div class="kpi-label">P&L do dia</div><div class="kpi-val neu" id="kpi-day">—</div><div class="kpi-sub" id="kpi-day-pct">—</div></div>
+    <div class="kpi"><div class="kpi-label">P&L total</div><div class="kpi-val neu" id="kpi-tot">—</div><div class="kpi-sub" id="kpi-tot-pct">—</div></div>
+  </div>
+  <div class="sectors" id="sectors-area"></div>
+  <footer>Cotações Brapi · dados com atraso · não constitui recomendação</footer>
+</div>
+
+<div class="page" id="page-edit">
+  <div class="edit-wrap">
+    <input class="edit-search" type="search" placeholder="Buscar ativo…" oninput="renderEditList(this.value)" id="edit-search">
+    <div id="edit-list"></div>
+    <button class="btn-add" onclick="openAddModal()">+ Adicionar ativo</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="add-modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>Novo ativo</h3>
+    <label>Ticker (ex: ITUB4)</label>
+    <input id="m-ticker" placeholder="ITUB4" autocapitalize="characters" autocomplete="off">
+    <label>Quantidade</label>
+    <input id="m-qty" type="number" placeholder="100" inputmode="numeric">
+    <label>Preço médio (R$)</label>
+    <input id="m-pm" type="number" placeholder="32.50" inputmode="decimal" step="0.01">
+    <label>Setor</label>
+    <input id="m-sector" placeholder="Bancos" list="sector-list">
+    <datalist id="sector-list"></datalist>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmAdd()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-toast" id="toast"></div>
+
+<script>
+const DEFAULT = [
+  {t:"ITUB4",q:100,pm:32.50,s:"Bancos"},{t:"ITSA4",q:200,pm:10.80,s:"Bancos"},
+  {t:"BBAS3",q:80,pm:28.00,s:"Bancos"},{t:"BBDC4",q:150,pm:14.20,s:"Bancos"},
+  {t:"SANB11",q:60,pm:29.50,s:"Bancos"},{t:"BPAC11",q:50,pm:33.00,s:"Bancos"},
+  {t:"CMIG4",q:200,pm:9.80,s:"Energia"},{t:"EQTL3",q:100,pm:30.00,s:"Energia"},
+  {t:"ENEV3",q:80,pm:16.50,s:"Energia"},{t:"CPFE3",q:120,pm:35.00,s:"Energia"},
+  {t:"ENGI11",q:60,pm:42.00,s:"Energia"},{t:"CPLE3",q:150,pm:8.50,s:"Energia"},
+  {t:"PETR4",q:200,pm:36.00,s:"Petróleo & Gás"},{t:"PETR3",q:100,pm:37.50,s:"Petróleo & Gás"},
+  {t:"PRIO3",q:80,pm:42.00,s:"Petróleo & Gás"},{t:"BRAV3",q:60,pm:20.00,s:"Petróleo & Gás"},
+  {t:"RECV3",q:100,pm:18.00,s:"Petróleo & Gás"},
+  {t:"VALE3",q:150,pm:60.00,s:"Mineração & Siderurgia"},{t:"GGBR4",q:200,pm:18.50,s:"Mineração & Siderurgia"},
+  {t:"SUZB3",q:100,pm:55.00,s:"Papel & Celulose"},{t:"KLBN11",q:150,pm:19.00,s:"Papel & Celulose"},
+  {t:"RAIL3",q:120,pm:18.00,s:"Infraestrutura"},{t:"SBSP3",q:80,pm:85.00,s:"Infraestrutura"},
+  {t:"SAPR11",q:100,pm:22.00,s:"Infraestrutura"},{t:"CSMG3",q:150,pm:17.00,s:"Infraestrutura"},
+  {t:"FLRY3",q:100,pm:16.00,s:"Saúde"},
+  {t:"MULT3",q:80,pm:22.00,s:"Consumo"},{t:"ALOS3",q:120,pm:19.50,s:"Consumo"},
+  {t:"VULC3",q:200,pm:12.00,s:"Consumo"},{t:"BEEF3",q:150,pm:10.00,s:"Consumo"},
+  {t:"MRVE3",q:200,pm:9.00,s:"Consumo"},{t:"DIRR3",q:100,pm:14.00,s:"Consumo"},
+  {t:"BBSE3",q:100,pm:32.00,s:"Seguros"},{t:"PSSA3",q:80,pm:95.00,s:"Seguros"},
+  {t:"CXSE3",q:120,pm:14.00,s:"Seguros"},
+  {t:"NVDC34",q:20,pm:85.00,s:"Tech / BDRs"},{t:"ROXO34",q:30,pm:45.00,s:"Tech / BDRs"},
+  {t:"MBRF3",q:50,pm:22.00,s:"Tech / BDRs"},{t:"WEGE3",q:80,pm:52.00,s:"Tech / BDRs"},
+  {t:"EMBJ3",q:100,pm:8.00,s:"Tech / BDRs"},{t:"AXIA6",q:100,pm:12.00,s:"Tech / BDRs"},
+  {t:"AXIA3",q:100,pm:11.00,s:"Tech / BDRs"},
+  {t:"ISTT11",q:50,pm:110.00,s:"FIIs & Fundos"},{t:"XPCA11",q:30,pm:98.00,s:"FIIs & Fundos"},
+  {t:"JGPX11",q:40,pm:105.00,s:"FIIs & Fundos"},{t:"JMBI11",q:50,pm:97.00,s:"FIIs & Fundos"},
+  {t:"FGAA11",q:40,pm:100.00,s:"FIIs & Fundos"},{t:"JSAF11",q:30,pm:103.00,s:"FIIs & Fundos"},
+  {t:"SPXS11",q:50,pm:95.00,s:"FIIs & Fundos"},{t:"KNHF11",q:40,pm:102.00,s:"FIIs & Fundos"},
+  {t:"ITRI11",q:30,pm:99.00,s:"FIIs & Fundos"},{t:"TRXF11",q:50,pm:101.00,s:"FIIs & Fundos"},
+  {t:"GARE11",q:40,pm:100.00,s:"FIIs & Fundos"},{t:"RZTR11",q:30,pm:98.00,s:"FIIs & Fundos"},
+  {t:"DIVS11",q:50,pm:104.00,s:"FIIs & Fundos"},{t:"BDIF11",q:40,pm:100.00,s:"FIIs & Fundos"},
+  {t:"JURO11",q:30,pm:103.00,s:"FIIs & Fundos"},{t:"CPTI11",q:50,pm:99.00,s:"FIIs & Fundos"},
+  {t:"IFRA11",q:40,pm:101.00,s:"FIIs & Fundos"},{t:"KDIF11",q:30,pm:100.00,s:"FIIs & Fundos"},
+  {t:"RIFF11",q:50,pm:98.00,s:"FIIs & Fundos"},{t:"BINC11",q:40,pm:105.00,s:"FIIs & Fundos"},
+  {t:"BODI11",q:30,pm:100.00,s:"FIIs & Fundos"},{t:"IFRI11",q:50,pm:102.00,s:"FIIs & Fundos"},
+  {t:"CDII11",q:40,pm:97.00,s:"FIIs & Fundos"},{t:"BDIV11",q:50,pm:101.00,s:"FIIs & Fundos"},
+  {t:"PPEI11",q:30,pm:103.00,s:"FIIs & Fundos"},{t:"ENDD11",q:40,pm:100.00,s:"FIIs & Fundos"},
+  {t:"BRZP11",q:50,pm:99.00,s:"FIIs & Fundos"},{t:"COPN11",q:30,pm:104.00,s:"FIIs & Fundos"},
+  {t:"BODB11",q:40,pm:98.00,s:"FIIs & Fundos"},{t:"ISEN11",q:30,pm:101.00,s:"FIIs & Fundos"},
+];
+
+const STORAGE_KEY = "sima_portfolio_v1";
+let PORTFOLIO = JSON.parse(JSON.stringify(DEFAULT));
+let quotes = {};
+let expanded = {};
+
+const fmt = (v,d=2) => v==null?"—":v.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtBRL = v => "R$ "+fmt(Math.abs(v));
+const sign = v => v>0?"+":"";
+const cls = v => v>0?"pos":v<0?"neg":"neu";
+
+function saveToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(PORTFOLIO));}catch(e){}}
+function loadFromStorage(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){PORTFOLIO=JSON.parse(r);return true;}}catch(e){}return false;}
+
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2000);}
+function setStatus(msg){const b=document.getElementById("status-bar");b.textContent=msg;b.style.display=msg?"block":"none";}
+
+async function fetchQuotes(tickers) {
+  const syms = tickers.join(",");
+  const url = `https://brapi.dev/api/quote/${syms}?fundamental=false`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("brapi " + r.status);
+    const j = await r.json();
+    (j?.results || []).forEach(q => {
+      quotes[q.symbol] = {
+        price:  q.regularMarketPrice,
+        prev:   q.regularMarketPreviousClose,
+        chgPct: q.regularMarketChangePercent
+      };
+    });
+  } catch(e) { console.warn("fetch error:", e); }
+}
+
+async function loadAll(){
+  const btn=document.getElementById("refresh-btn");
+  const icon=document.getElementById("refresh-icon");
+  btn.disabled=true; icon.classList.add("spinning");
+  setStatus("Buscando cotações…");
+  const tickers=[...new Set(PORTFOLIO.map(p=>p.t))];
+  for(let i=0;i<tickers.length;i+=10){
+    await fetchQuotes(tickers.slice(i,i+10));
+    setStatus(`Carregando… ${Math.min(i+10,tickers.length)}/${tickers.length}`);
+    renderDashboard();
+  }
+  btn.disabled=false; icon.classList.remove("spinning");
+  document.getElementById("last-update").textContent=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+  setStatus("");
+}
+
+function renderDashboard(){renderKPIs();renderSectors();}
+
+function renderKPIs(){
+  let tv=0,td=0,tc=0;
+  PORTFOLIO.forEach(p=>{const q=quotes[p.t];if(!q)return;tv+=q.price*p.q;td+=(q.price-q.prev)*p.q;tc+=p.pm*p.q;});
+  const dp=tc?(td/(tv-td||1))*100:0,tp=tc?((tv-tc)/tc)*100:0;
+  const set=(id,v,c)=>{const el=document.getElementById(id);if(el){el.textContent=v;el.className="kpi-val "+c;}};
+  set("kpi-total",tv?"R$ "+fmt(tv,0):"—","neu");
+  set("kpi-day",tv?(sign(td)+fmtBRL(td)):"—",cls(td));
+  const ds=document.getElementById("kpi-day-pct");if(ds)ds.textContent=tv?sign(dp)+fmt(dp)+"%":"—";
+  set("kpi-tot",tv?(sign(tv-tc)+fmtBRL(tv-tc)):"—",cls(tv-tc));
+  const ts=document.getElementById("kpi-tot-pct");if(ts)ts.textContent=tv?sign(tp)+fmt(tp)+"%":"—";
+}
+
+function renderSectors(){
+  const byS={};
+  PORTFOLIO.forEach(p=>{if(!byS[p.s])byS[p.s]=[];byS[p.s].push(p);});
+  const c=document.getElementById("sectors-area");c.innerHTML="";
+  Object.entries(byS).forEach(([name,assets])=>{
+    let sv=0,sd=0;
+    assets.forEach(p=>{const q=quotes[p.t];if(!q)return;sv+=q.price*p.q;sd+=(q.price-q.prev)*p.q;});
+    const key=name.replace(/[^a-zA-Z0-9]/g,"_");
+    const isOpen=expanded[name]!==false;
+    const div=document.createElement("div");div.className="sector";
+    div.innerHTML=`
+      <div class="sector-hdr" onclick="toggleSector('${name.replace(/'/g,"\\'")}','${key}')">
+        <span class="sector-name">${name} <span class="badge">${assets.length}</span></span>
+        <span class="sector-pnl ${cls(sd)}">${sv?sign(sd)+fmtBRL(sd):"—"}</span>
+      </div>
+      <div id="sb_${key}" style="display:${isOpen?"block":"none"}">
+        <table>
+          <thead><tr><th style="width:28%">Ativo</th><th style="width:22%">Cotação</th><th style="width:25%">Posição</th><th style="width:25%">P&L</th></tr></thead>
+          <tbody>${assets.map(renderRow).join("")}</tbody>
+        </table>
+      </div>`;
+    c.appendChild(div);
+  });
+}
+
+function renderRow(p){
+  const q=quotes[p.t];
+  if(!q)return`<tr><td><span class="ticker">${p.t}</span></td><td colspan="3" style="color:#666;font-size:11px;text-align:center"><span class="spinner"></span>carregando</td></tr>`;
+  const pos=q.price*p.q,cost=p.pm*p.q,totPnl=pos-cost,dayPnl=(q.price-q.prev)*p.q,totPct=cost?(totPnl/cost)*100:0;
+  return`<tr>
+    <td><span class="ticker" onclick="quickEdit('${p.t}')">${p.t}</span></td>
+    <td><div class="price-cell"><span>R$ ${fmt(q.price)}</span><span class="chg ${cls(q.chgPct)}">${sign(q.chgPct)}${fmt(q.chgPct)}%</span></div></td>
+    <td>R$ ${fmt(pos,0)}</td>
+    <td><div class="price-cell"><span class="${cls(dayPnl)}">${sign(dayPnl)}${fmt(dayPnl,0)}</span><span class="chg ${cls(totPnl)}">${sign(totPct)}${fmt(totPct,1)}%</span></div></td>
+  </tr>`;
+}
+
+function toggleSector(name,key){
+  expanded[name]=expanded[name]===false?true:false;
+  const el=document.getElementById("sb_"+key);
+  if(el)el.style.display=expanded[name]===false?"none":"block";
+}
+
+function renderEditList(filter=""){
+  const f=(filter||"").toUpperCase();
+  const list=PORTFOLIO.filter(p=>!f||p.t.includes(f)||p.s.toUpperCase().includes(f));
+  document.getElementById("edit-list").innerHTML=list.map(p=>{
+    const k=p.t.replace(/[^a-zA-Z0-9]/g,"_");
+    return`<div class="asset-card" id="card_${k}">
+      <div class="ac-header"><span class="ac-ticker">${p.t}</span><span class="ac-sector">${p.s}</span></div>
+      <div class="ac-row">
+        <div class="ac-field"><label>Quantidade</label><input type="number" inputmode="numeric" value="${p.q}" onchange="fieldChange('${p.t}','q',this.value)"></div>
+        <div class="ac-field"><label>Preço médio (R$)</label><input type="number" inputmode="decimal" step="0.01" value="${p.pm}" onchange="fieldChange('${p.t}','pm',this.value)"></div>
+      </div>
+      <div class="ac-row">
+        <div class="ac-field" style="grid-column:1/-1"><label>Setor</label><input value="${p.s}" list="sector-list" onchange="fieldChange('${p.t}','s',this.value)"></div>
+      </div>
+      <div class="ac-actions">
+        <button class="btn-save" onclick="saveAsset('${p.t}')">Salvar</button>
+        <button class="btn-del" onclick="deleteAsset('${p.t}')">Remover</button>
+      </div>
+    </div>`;
+  }).join("")||`<div style="color:var(--muted);text-align:center;padding:24px;font-size:13px">Nenhum ativo encontrado</div>`;
+  const dl=document.getElementById("sector-list");dl.innerHTML="";
+  [...new Set(PORTFOLIO.map(p=>p.s))].forEach(s=>{const o=document.createElement("option");o.value=s;dl.appendChild(o);});
+}
+
+function fieldChange(ticker,field,val){
+  const p=PORTFOLIO.find(p=>p.t===ticker);if(!p)return;
+  if(field==="q")p.q=parseFloat(val)||0;
+  else if(field==="pm")p.pm=parseFloat(val)||0;
+  else if(field==="s")p.s=val;
+}
+
+function saveAsset(ticker){renderDashboard();saveToStorage();toast("Salvo ✓");}
+
+function deleteAsset(ticker){
+  if(!confirm(`Remover ${ticker} da carteira?`))return;
+  PORTFOLIO=PORTFOLIO.filter(p=>p.t!==ticker);
+  renderEditList(document.getElementById("edit-search").value);
+  renderDashboard();saveToStorage();toast("Removido");
+}
+
+function quickEdit(ticker){
+  showPage("edit");
+  setTimeout(()=>{
+    const k=ticker.replace(/[^a-zA-Z0-9]/g,"_");
+    const card=document.getElementById("card_"+k);
+    if(card)card.scrollIntoView({behavior:"smooth",block:"center"});
+  },100);
+}
+
+function openAddModal(){
+  ["m-ticker","m-qty","m-pm","m-sector"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("add-modal").style.display="flex";
+  setTimeout(()=>document.getElementById("m-ticker").focus(),100);
+}
+function closeModal(){document.getElementById("add-modal").style.display="none";}
+function confirmAdd(){
+  let t=(document.getElementById("m-ticker").value||"").trim().toUpperCase();
+  if(!t){alert("Informe o ticker");return;}
+  const q=parseFloat(document.getElementById("m-qty").value)||0;
+  const pm=parseFloat(document.getElementById("m-pm").value)||0;
+  const s=document.getElementById("m-sector").value.trim()||"Outros";
+  if(PORTFOLIO.find(p=>p.t===t)){alert("Ativo já existe");return;}
+  PORTFOLIO.push({t,q,pm,s});
+  closeModal();
+  renderEditList(document.getElementById("edit-search").value);
+  renderDashboard();
+  fetchQuotes([t]).then(()=>renderDashboard());
+  saveToStorage();
+  toast("Adicionado ✓");
+}
+
+function showPage(name){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  document.querySelectorAll(".nav-tab")[name==="dashboard"?0:1].classList.add("active");
+  if(name==="edit")renderEditList();
+}
+
+loadFromStorage();
+renderDashboard();
+loadAll();
+setInterval(loadAll,300000);
+</script>
+</body>
+</html>
